@@ -1,0 +1,19 @@
+$color-names: ('one', 'two', 'three', 'four');
+
+@mixin progress-spinner-color ($color) {
+  @each $name in $color-names {
+    --p-progressspinner-color-#{$name}: #{$color};
+  }
+}
+
+@mixin breakpoint($size) {
+  @if $size == sm {
+    @media (max-width: 640px) { @content; }
+  } @else if $size == md {
+    @media (max-width: 768px) { @content; }
+  } @else if $size == lg {
+    @media (max-width: 1024px) { @content; }
+  } @else if $size == xl {
+    @media (max-width: 1280px) { @content; }
+  }
+}
