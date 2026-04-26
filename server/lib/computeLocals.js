@@ -18,6 +18,11 @@ export const getLocalsForRender = ({
                 subdirectory: 'app',
             })};</script>`,
             webHost: res.locals.webHost,
+            hmrEnabled: settings?.HMR_ENABLED,
+            seo: {
+                description: 'Company Analyzer',
+                title: 'Company Analyzer',
+            },
         }
         : {};
 

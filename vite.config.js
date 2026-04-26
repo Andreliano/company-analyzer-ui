@@ -11,7 +11,7 @@ import {NodeGlobalsPolyfillPlugin} from '@esbuild-plugins/node-globals-polyfill'
 
 // https://vite.dev/config/
 export default defineConfig({
-    base: '/app',
+    base: '/app/assets/',
     publicDir: '/dist/',
     build: {
         modulePreload: {
@@ -65,6 +65,10 @@ export default defineConfig({
         }
     },
     server: {
-        host: 'localhost',
+        port: 6011,
+        hmr: {
+            host: 'localhost',
+            port: 6011,
+        }
     },
 })

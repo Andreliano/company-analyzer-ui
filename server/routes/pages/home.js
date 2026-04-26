@@ -8,7 +8,7 @@ const app = express.Router();
  * @param {object} app  - Express app object
  * @returns {null}      - No return value
  */
-app.get(/(.*)/, async (req, res) => {
+app.get(['/', /{*catchAll}/], async (req, res) => {
     res.render('index', {
         locals: getLocalsForRender({ req, res }),
     });

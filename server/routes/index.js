@@ -16,7 +16,7 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-app.use(serviceRequestMiddleware)
+app.use(serviceRequestMiddleware);;
 
 app.use(apiRoute, api);
 

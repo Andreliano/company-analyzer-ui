@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+    <title>${seo?.title}</title>
+    <meta name="description" content="${seo?.description}">
+    ${wcsContent?.head || ''}
+
+    ${process.env.HMR_ENABLED !== 'true' ? `<link rel="stylesheet" href="${css}" nonce="${nonce}" />`: ''}
+</head>
+
+<body>
+<noscript>We're sorry but this page doesn't work properly without JavaScript enabled. Please enable it to
+    continue.</noscript>
+<div id="app" />
+${appData}
+
+${process.env.HMR_ENABLED !== 'true' ? `<script type="module" nonce="${nonce}" src="${js}" nonce="${nonce}"></script>`: ''}
+${process.env.HMR_ENABLED === 'true' ? `<script type="module" nonce="${nonce}" src="${webHost}/@vite/client"></script>`: ''}
+${process.env.HMR_ENABLED === 'true' ? `<script type="module" nonce="${nonce}" src="${webHost}/src/main.js"></script>`: ''}
+</body>
+
+</html>

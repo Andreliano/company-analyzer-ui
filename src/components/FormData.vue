@@ -32,7 +32,7 @@ const state = ref({
 /* Computed */
 const companyOptions = computed(() => {
   return props.companiesStockSymbolsResults
-      .map(company => `${company?.displaySymbol} - ${company?.description}`);
+      .map(company => `${company?.description}`);
 });
 
 /* Methods */

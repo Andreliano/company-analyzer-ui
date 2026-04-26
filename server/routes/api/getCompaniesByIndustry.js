@@ -1,8 +1,8 @@
 
-export const getCompaniesStockSymbols = async (req, res) => {
+export const getCompaniesByIndustry = async (req, res) => {
     const opts = {
         method: "GET",
-        url: `${req.app.settings.COMPANY_ANALYZER_DATA_BASE_URL}/companies/stock-symbols`
+        url: `${req.app.settings.COMPANY_ANALYZER_DATA_BASE_URL}/companies/by-industry`
     };
 
     try {
