@@ -8,7 +8,9 @@
     "watch": "npm-run-all -p watch:build watch:start",
     "watch:build": "vite",
     "watch:start": "node --watch-path ./server/ --watch-path ./.env -r dotenv/config server/app.js",
-    "start": "node --optimize_for_size server/app.js"
+    "start": "node --optimize_for_size server/app.js",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "license": "UNLICENSED",
   "dependencies": {
@@ -18,6 +20,7 @@
     "@primevue/themes": "^4.4.1",
     "axios": "^1.13.1",
     "body-parser": "^2.2.0",
+    "chart.js": "^4.5.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -33,8 +36,13 @@
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vitejs/plugin-vue": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-vue": "^10.9.0",
+    "globals": "^17.6.0",
     "sass-embedded": "^1.93.3",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "vue-eslint-parser": "^10.4.0"
   }
 }

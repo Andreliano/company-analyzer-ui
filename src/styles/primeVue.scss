@@ -1,0 +1,40 @@
+/*
+ * PrimeVue Overrides
+ */
+
+.p-drawer {
+  background-color: #1e293b !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+}
+
+.p-drawer-header {
+  background-color: #1e293b !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding: 1.25rem 1.5rem !important;
+}
+
+.p-drawer-content {
+  background-color: #1e293b !important;
+  padding: 0.5rem 0 !important;
+}
+
+.p-drawer-close-button {
+  color: #64748b !important;
+
+  &:hover {
+    color: #cbd5e1 !important;
+    background-color: rgba(255, 255, 255, 0.07) !important;
+  }
+}
+
+.p-message-text,
+.p-multiselect-label,
+.p-select-label,
+.p-tooltip-text {
+  font-size: $font-sm !important;
+}
+
+.p-datatable {
+  font-size: $font-md;
+}

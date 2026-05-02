@@ -1,13 +1,13 @@
 /* Imports */
 
-import GlobalDataView from "../views/GlobalDataView.vue";
+import MarketDataView from "../views/MarketDataView.vue";
 import {h, resolveComponent} from "vue";
 
-const subdirectory = window?.appData?.subdirectory ?? 'app';
+const subdirectory = globalThis?.appData?.subdirectory ?? 'app';
 
 export default [
     {
-        path: `/${subdirectory}/global-data-view`,
+        path: `/${subdirectory}/market-overview`,
         component: {
             render() {
                 return h(resolveComponent('router-view'));
@@ -16,13 +16,49 @@ export default [
         children: [
             {
                 path: '',
-                name: 'globalDataView',
-                component: GlobalDataView,
+                name: 'marketDataView',
+                component: MarketDataView,
+            },
+        ],
+    },
+    {
+        path: '',
+        component: () => import('../containers/CompanyResearchContainer.vue'),
+        children: [
+            {
+                path: 'company-profile',
+                name: 'companyProfileView',
+                component: () => import('../views/CompanyProfileView.vue'),
+                meta: { heading: 'Company Profile' },
+            },
+            {
+                path: 'company-screener',
+                name: 'companyScreenerView',
+                component: () => import('../views/CompanyScreenerView.vue'),
+                meta: { heading: 'Company Screener' },
+            },
+        ],
+    },
+    {
+        path: '',
+        component: () => import('../containers/SheetStudioContainer.vue'),
+        children: [
+            {
+                path: 'single-sheet-generator',
+                name: 'singleSheetGeneratorView',
+                component: () => import('../views/SingleSheetGeneratorView.vue'),
+                meta: { heading: 'Single Sheet Generator' },
+            },
+            {
+                path: 'batch',
+                name: 'batchSheetRunnerView',
+                component: () => import('../views/BatchSheetRunnerView.vue'),
+                meta: { heading: 'Batch Sheet Runner' },
             },
         ],
     },
     {
         path: `/${subdirectory}/:pathMatch(.*)*`, // Catch-all route for unmatched paths
-        redirect: `/${subdirectory}/global-data-view`, // Redirect to /app/global-data-view
+        redirect: `/${subdirectory}/market-overview`, // Redirect to /app/global-data-view
     },
 ];

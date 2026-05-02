@@ -43,11 +43,11 @@ const componentClasses = computed(() => ({
 
 <template>
   <component
-      :is="`h${props.size}`"
-      :class="componentClasses"
-      :style="props.styleObject"
-      :data-testid="props.dataTestId"
-      v-html="props.content"
+    :is="`h${props.size}`"
+    :class="componentClasses"
+    :style="props.styleObject"
+    :data-testid="props.dataTestId"
+    v-html="props.content"
   />
 </template>
 

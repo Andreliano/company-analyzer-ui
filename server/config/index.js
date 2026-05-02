@@ -19,7 +19,7 @@ export const configEntryFile = async (app) => {
         // Call function for views
         views(app);
     } catch (error) {
-        // eslint-disable-next-line no-console
+         
         console.log(`Error configuring app: ${error}`);
     }
 };

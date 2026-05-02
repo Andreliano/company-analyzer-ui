@@ -30,11 +30,10 @@ import {
     MultiSelect,
     Tooltip,
     Tag,
+    Drawer,
+    ProgressBar,
 } from 'primevue';
-import {
-    Form,
-    FormField,
-} from '@primevue/forms';
+import Chart from 'primevue/chart';
 
 /**
  * Injects PrimeVue and its components into the Vue application instance.
@@ -44,18 +43,35 @@ export const injectPrimeVue = (app) => {
     const MyPreset = definePreset(Aura, {
         semantic: {
             primary: {
-                0: '{gray.0}',
-                50: '{gray.50}',
-                100: '{gray.100}',
-                200: '{gray.200}',
-                300: '{gray.300}',
-                400: '{gray.400}',
-                500: '{gray.500}',
-                600: '{gray.600}',
-                700: '{gray.700}',
-                800: '{gray.800}',
-                900: '{gray.900}',
-                950: '{gray.950}',
+                50:  '{indigo.50}',
+                100: '{indigo.100}',
+                200: '{indigo.200}',
+                300: '{indigo.300}',
+                400: '{indigo.400}',
+                500: '{indigo.500}',
+                600: '{indigo.600}',
+                700: '{indigo.700}',
+                800: '{indigo.800}',
+                900: '{indigo.900}',
+                950: '{indigo.950}',
+            },
+            colorScheme: {
+                light: {
+                    surface: {
+                        0:   '#ffffff',
+                        50:  '{slate.50}',
+                        100: '{slate.100}',
+                        200: '{slate.200}',
+                        300: '{slate.300}',
+                        400: '{slate.400}',
+                        500: '{slate.500}',
+                        600: '{slate.600}',
+                        700: '{slate.700}',
+                        800: '{slate.800}',
+                        900: '{slate.900}',
+                        950: '{slate.950}',
+                    },
+                },
             },
         },
     });
@@ -96,8 +112,9 @@ export const injectPrimeVue = (app) => {
     app.component('ConfirmDialog', ConfirmDialog);
     app.component('MultiSelect', MultiSelect);
     app.component('Tag', Tag);
-    app.component('Form', Form);
-    app.component('FormField', FormField);
+    app.component('Drawer', Drawer);
+    app.component('Chart', Chart);
+    app.component('ProgressBar', ProgressBar);
 };
 
 export default injectPrimeVue;

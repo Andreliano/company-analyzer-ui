@@ -60,6 +60,8 @@ export default defineConfig({
             scss: {
                 additionalData: `
                @use "@/styles/mixins.scss" as *;
+               @use '@/styles/typography.scss' as *;
+               @use '@/styles/colors.scss' as *;
                `
             }
         }

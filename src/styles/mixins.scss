@@ -1,9 +1,25 @@
+@mixin center-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 $color-names: ('one', 'two', 'three', 'four');
 
 @mixin progress-spinner-color ($color) {
   @each $name in $color-names {
+    // stylelint-disable-next-line color-named
     --p-progressspinner-color-#{$name}: #{$color};
   }
+}
+
+@mixin small-horizontal-margin {
+  margin: 0 0.25rem;
+}
+
+@mixin filter-icon {
+  padding: 0.2rem;
+  border-radius: 0.2rem;
 }
 
 @mixin breakpoint($size) {

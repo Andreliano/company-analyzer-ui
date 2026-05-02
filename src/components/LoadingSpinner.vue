@@ -45,15 +45,15 @@ const progressSpinnerClasses = computed(() => ({
 
 <template>
   <div
-      v-if="props.isLoading"
-      :class="containerClasses"
+    v-if="props.isLoading"
+    :class="containerClasses"
   >
     <ProgressSpinner
-        :class="progressSpinnerClasses"
-        :aria-label="props.ariaLabel"
-        stroke-width="4"
-        animation-duration=".5s"
-        :data-testid="props.dataTestId"
+      :class="progressSpinnerClasses"
+      :aria-label="props.ariaLabel"
+      stroke-width="4"
+      animation-duration=".5s"
+      :data-testid="props.dataTestId"
     />
   </div>
 </template>
@@ -63,7 +63,7 @@ const progressSpinnerClasses = computed(() => ({
   cursor: wait;
 
   &--center-center {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
