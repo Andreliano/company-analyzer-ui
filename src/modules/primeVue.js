@@ -32,6 +32,7 @@ import {
     Tag,
     Drawer,
     ProgressBar,
+    Card,
 } from 'primevue';
 import Chart from 'primevue/chart';
 
@@ -115,6 +116,7 @@ export const injectPrimeVue = (app) => {
     app.component('Drawer', Drawer);
     app.component('Chart', Chart);
     app.component('ProgressBar', ProgressBar);
+    app.component('Card', Card);
 };
 
 export default injectPrimeVue;

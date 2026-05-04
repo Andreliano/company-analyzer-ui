@@ -78,9 +78,13 @@ export const useMarketDataStore = defineStore('marketDataStore', {
 
         getIndustriesWithMetrics: (state) => {
             return state.industriesData.map((industry) => {
-                const companyCount = state.companiesByIndustry.filter(
-                    (company) => company.industry === industry
-                ).length;
+                const companyCount = state.companiesByIndustry.filter((company) => {
+                    const companyIndustry =
+                        company.industry === '' || company.industry == null
+                            ? 'Uncategorized'
+                            : company.industry;
+                    return companyIndustry === industry;
+                }).length;
 
                 const peData = state.industryWeightedPERatioMap[industry];
 

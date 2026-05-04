@@ -18,6 +18,9 @@ export const useFlashMessagesStore = defineStore('flashMessagesStore', {
     showSuccess(text) {
       this.setFlashMessage({ text, severity: 'success', closable: true });
     },
+    showWarning(text) {
+      this.setFlashMessage({ text, severity: 'warn', closable: true });
+    },
   },
 });
 
