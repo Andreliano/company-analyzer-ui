@@ -1,7 +1,13 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useBatchStore } from '../store/batchStore.js';
-import { useGetCompaniesStockSymbols } from '../store/getCompaniesStockSymbols.js';
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch,
+} from 'vue';
+import {useBatchStore} from '../store/batchStore.js';
+import {useGetCompaniesStockSymbols} from '../store/getCompaniesStockSymbols.js';
 import SheetPreviewTable from './SheetPreviewTable.vue';
 import LoadingSpinner from './LoadingSpinner.vue';
 
@@ -11,8 +17,45 @@ const symbolsStore = useGetCompaniesStockSymbols();
 const selectedTickers = ref([]);
 const currentYear = new Date().getFullYear();
 const fromYear = ref(currentYear - 10);
-const toYear = ref(currentYear);
+const toYear = ref(currentYear - 1);
 const previewVisible = ref(false);
+
+const elapsedMs = ref(0);
+const finalElapsedMs = ref(null);
+let tickHandle = null;
+let startedAt = 0;
+
+const startTimer = () => {
+  startedAt = Date.now();
+  elapsedMs.value = 0;
+  stopTimer();
+  tickHandle = setInterval(() => {
+    elapsedMs.value = Date.now() - startedAt;
+  }, 100);
+};
+
+const stopTimer = () => {
+  if (tickHandle) {
+    clearInterval(tickHandle);
+    tickHandle = null;
+  }
+};
+
+const formatDuration = (ms) => {
+  if (ms == null || !Number.isFinite(ms)) return '—';
+  const totalSec = ms / 1000;
+  const m = Math.floor(totalSec / 60);
+  const s = (totalSec % 60).toFixed(1);
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
+};
+
+const displayDuration = computed(() => {
+  if (store.isTerminalState) {
+    const backend = store.processingDurationMs;
+    return formatDuration(Number.isFinite(backend) ? backend : finalElapsedMs.value);
+  }
+  return formatDuration(elapsedMs.value);
+});
 
 const tickerOptions = computed(() => {
   const seen = new Set();
@@ -22,7 +65,7 @@ const tickerOptions = computed(() => {
         seen.add(c.symbol);
         return true;
       })
-      .map((c) => ({ symbol: c.symbol, description: c.description || c.symbol }));
+      .map((c) => ({symbol: c.symbol, description: c.description || c.symbol}));
 });
 
 const canSubmit = computed(
@@ -43,9 +86,23 @@ const onSubmit = () => {
 
 const onPreview = (row) => {
   if (!row.success) return;
-  store.previewSheet({ ticker: row.ticker, sheetId: row.sheetId });
+  store.previewSheet({ticker: row.ticker, sheetId: row.sheetId});
   previewVisible.value = true;
 };
+
+
+watch(
+    () => store.polling,
+    (polling, wasPolling) => {
+      if (polling) {
+        finalElapsedMs.value = null;
+        startTimer();
+      } else {
+        stopTimer();
+        if (wasPolling) finalElapsedMs.value = elapsedMs.value;
+      }
+    },
+);
 
 onMounted(() => {
   if (!symbolsStore.getCompaniesStockSymbolsResults?.length) {
@@ -54,6 +111,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  stopTimer();
   store.stopPolling();
   store.$reset();
 });
@@ -94,11 +152,11 @@ onUnmounted(() => {
       </div>
       <div class="batch__field">
         <label>From year</label>
-        <InputNumber v-model="fromYear" :use-grouping="false" :min="1990" :max="currentYear" />
+        <InputNumber v-model="fromYear" :use-grouping="false" :min="2014" :max="currentYear"/>
       </div>
       <div class="batch__field">
         <label>To year</label>
-        <InputNumber v-model="toYear" :use-grouping="false" :min="1990" :max="currentYear" />
+        <InputNumber v-model="toYear" :use-grouping="false" :min="2014" :max="currentYear"/>
       </div>
       <Button
           label="Run Batch"
@@ -112,17 +170,22 @@ onUnmounted(() => {
     <div v-if="store.job" class="batch__progress">
       <div class="batch__progress-header">
         <span class="batch__status">{{ store.status }}</span>
-        <span>
-          {{ store.finishedTasks }} / {{ store.totalTasks }} done
-          <span v-if="store.failedTasks"> · {{ store.failedTasks }} failed</span>
+        <span class="batch__meta">
+            <span>
+               {{ store.finishedTasks }} / {{ store.totalTasks }} done
+               <span v-if="store.failedTasks"> · {{ store.failedTasks }} failed</span>
+             </span>
+            <span class="batch__timer">
+                <i class="pi pi-clock"/> {{ displayDuration }}
+            </span>
         </span>
       </div>
-      <ProgressBar :value="store.progressPct" />
+      <ProgressBar :value="store.progressPct"/>
     </div>
 
     <div v-if="store.resultRows.length" class="batch__results">
       <DataTable :value="store.resultRows" data-key="ticker" size="small" show-gridlines>
-        <Column field="ticker" header="Ticker" style="min-width: 120px;" />
+        <Column field="ticker" header="Ticker" style="min-width: 120px;"/>
         <Column header="Status" style="min-width: 120px;">
           <template #body="{ data }">
             <Tag
@@ -152,8 +215,8 @@ onUnmounted(() => {
         :header="`Income Statement — ${store.previewTicker}`"
         :style="{ width: '90vw' }"
     >
-      <LoadingSpinner :is-loading="store.previewLoading" data-testid="batch-preview-spinner" />
-      <SheetPreviewTable :grid="store.previewGrid" scroll-height="70vh" />
+      <LoadingSpinner :is-loading="store.previewLoading" data-testid="batch-preview-spinner"/>
+      <SheetPreviewTable :grid="store.previewGrid" scroll-height="70vh"/>
     </Dialog>
   </div>
 </template>
@@ -209,6 +272,19 @@ onUnmounted(() => {
 
   &__status {
     font-weight: 600;
+
+    &__meta {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    &__timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-variant-numeric: tabular-nums;
+    }
   }
 }
 

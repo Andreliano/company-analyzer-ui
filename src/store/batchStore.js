@@ -80,6 +80,14 @@ export const useBatchStore = defineStore('batchStore', {
             }
         },
 
+        processingDurationMs: (s) => {
+            const start = Date.parse(s.job?.creationDate);
+            const end = Date.parse(s.job?.lastUpdatedDate);
+            if (Number.isNaN(start) || Number.isNaN(end)) return null;
+            const ms = end - start;
+            return ms >= 0 ? ms : null;
+        },
+
         startPolling() {
             this.stopPolling();
             this.polling = true;
