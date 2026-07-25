@@ -74,6 +74,15 @@ export const useMarketDataStore = defineStore('marketDataStore', {
             },
         ],
 
+        getDedupedCompanies: (state) => {
+            const seen = new Set();
+            return state.companiesByIndustry.filter((c) => {
+                if (!c?.symbol || seen.has(c.symbol)) return false;
+                seen.add(c.symbol);
+                return true;
+            });
+        },
+
         getSelectedIndustry: (state) => state.selectedIndustry,
 
         getIndustriesWithMetrics: (state) => {

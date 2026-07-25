@@ -12,3 +12,6 @@ export {
     findLatestWeightedPERatio,
     isValidPERatio,
 } from './marketUtils.js';
+export {
+    buildSheetTableModel,
+} from './sheetUtils.js';

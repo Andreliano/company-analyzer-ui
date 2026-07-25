@@ -1,6 +1,15 @@
 /* Imports */
 import { defineStore } from 'pinia';
 
+const DEFAULT_LIFE = {
+  success: 4000,
+  warn: 6000,
+  error: null,
+};
+
+let counter = 0;
+const timers = new Map();
+
 export const useFlashMessagesStore = defineStore('flashMessagesStore', {
   state: () => ({
     flashMessages: [],
@@ -10,16 +19,31 @@ export const useFlashMessagesStore = defineStore('flashMessagesStore', {
   },
   actions: {
     setFlashMessage(msg) {
-      this.flashMessages.push(msg);
+      const id = ++counter;
+      this.flashMessages.push({ id, ...msg });
+
+      const life = msg.life === undefined ? DEFAULT_LIFE[msg.severity] : msg.life;
+      if (life) {
+        timers.set(id, setTimeout(() => this.removeFlashMessage(id), life));
+      }
+      return id;
     },
-    showError(text) {
-      this.setFlashMessage({ text, severity: 'error', closable: true });
+    removeFlashMessage(id) {
+      const idx = this.flashMessages.findIndex((m) => m.id === id);
+      if (idx !== -1) this.flashMessages.splice(idx, 1);
+      if (timers.has(id)) {
+        clearTimeout(timers.get(id));
+        timers.delete(id);
+      }
     },
-    showSuccess(text) {
-      this.setFlashMessage({ text, severity: 'success', closable: true });
+    showError(text, opts = {}) {
+      this.setFlashMessage({ text, severity: 'error', closable: true, ...opts });
     },
-    showWarning(text) {
-      this.setFlashMessage({ text, severity: 'warn', closable: true });
+    showSuccess(text, opts = {}) {
+      this.setFlashMessage({ text, severity: 'success', closable: true, ...opts });
+    },
+    showWarning(text, opts = {}) {
+      this.setFlashMessage({ text, severity: 'warn', closable: true, ...opts });
     },
   },
 });

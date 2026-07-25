@@ -1,74 +1,68 @@
 <script setup>
-/* Imports */
-import {
-  ref,
-  computed,
-  onMounted,
-  watch
-} from 'vue';
-import {useRoute} from 'vue-router';
+import {ref, computed, onMounted, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 import {useMarketDataStore} from '../store/marketDataStore.js';
 import {useFlashMessagesStore} from '../store/flashMessagesStore.js';
+import LoadingSpinner from './LoadingSpinner.vue';
 
-/* Router */
 const route = useRoute();
-
-/* Stores */
+const router = useRouter();
 const marketDataStore = useMarketDataStore();
 const flashMessagesStore = useFlashMessagesStore();
 
-/* State */
-const selectedIndustry = ref(null);
 const companies = ref([]);
 const isLoading = ref(false);
 const searchQuery = ref('');
+const first = ref(0);
+const rows = ref(12);
 
-/* Computed */
-const industryFromQuery = computed(() => route.query.industry);
+const industryFromQuery = computed(() => route.query.industry || null);
+
+const headingLabel = computed(() =>
+    industryFromQuery.value ? `${industryFromQuery.value} Companies` : 'All Companies',
+);
 
 const filteredCompanies = computed(() => {
-  if (!companies.value) return [];
-
   let result = [...companies.value];
-
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase();
-    result = result.filter(c =>
-        c.name?.toLowerCase().includes(query) ||
-        c.symbol?.toLowerCase().includes(query)
+  const q = searchQuery.value.trim().toLowerCase();
+  if (q) {
+    result = result.filter(
+        (c) => c.name?.toLowerCase().includes(q) || c.symbol?.toLowerCase().includes(q),
     );
   }
-
-  return result.sort((a, b) => {
-    const nameA = a.name?.toLowerCase() || '';
-    const nameB = b.name?.toLowerCase() || '';
-    return nameA.localeCompare(nameB);
-  });
+  return result.sort((a, b) =>
+      (a.name?.toLowerCase() || '').localeCompare(b.name?.toLowerCase() || ''),
+  );
 });
 
-const companyCount = computed(() => companies.value.length); // totalul nefiltat
-const hasNoData = computed(() => !isLoading.value && companies.value.length === 0);
+const totalCount = computed(() => companies.value.length);
 
-/* Methods */
-const fetchCompaniesByIndustry = async (industry) => {
-  if (!industry) {
-    flashMessagesStore.showError('No industry selected.');
-    return;
-  }
+const formatPe = (pe) => (pe == null ? 'N/A' : Number(pe).toFixed(2));
 
+const loadCompanies = async () => {
   isLoading.value = true;
-  selectedIndustry.value = industry;
-
+  first.value = 0;
   try {
-    await marketDataStore.fetchCompaniesByIndustry(industry);
-    companies.value = marketDataStore.getCompaniesByIndustry.filter(
-      (company) => company.industry === industry
-    );
+    await marketDataStore.fetchCompaniesByIndustry(industryFromQuery.value);
+    const all = marketDataStore.getCompaniesByIndustry ?? [];
 
-    if (companyCount.value === 0) {
-      flashMessagesStore.showWarning(`No companies found for "${industry}" industry.`);
-    } else {
-      flashMessagesStore.showSuccess(`Loaded ${companyCount.value} companies from "${industry}" industry.`);
+    const list = industryFromQuery.value
+        ? all.filter((c) => c.industry === industryFromQuery.value)
+        : all;
+
+    const seen = new Set();
+    companies.value = list.filter((c) => {
+      if (!c?.symbol || seen.has(c.symbol)) return false;
+      seen.add(c.symbol);
+      return true;
+    });
+
+    if (totalCount.value === 0) {
+      flashMessagesStore.showWarning(
+          industryFromQuery.value
+              ? `No companies found for "${industryFromQuery.value}" industry.`
+              : 'No companies found.',
+      );
     }
   } catch (error) {
     flashMessagesStore.showError(`Failed to load companies: ${error?.message || 'Unknown error'}`);
@@ -78,44 +72,37 @@ const fetchCompaniesByIndustry = async (industry) => {
   }
 };
 
-/* Lifecycle */
-onMounted(() => {
-  if (industryFromQuery.value) {
-    fetchCompaniesByIndustry(industryFromQuery.value);
-  }
-});
+const goToProfile = (company) => {
+  router.push({name: 'companyProfileView', query: {ticker: company.symbol}});
+};
 
-/* Watchers */
-watch(
-  () => industryFromQuery.value,
-  (newIndustry) => {
-    if (newIndustry) {
-      fetchCompaniesByIndustry(newIndustry);
-    }
-  }
-);
+const onPage = (event) => {
+  first.value = event.first;
+  rows.value = event.rows;
+};
+
+onMounted(loadCompanies);
+watch(industryFromQuery, loadCompanies);
+watch(searchQuery, () => {
+  first.value = 0;
+});
 </script>
 
 <template>
   <div class="company-screener">
+    <LoadingSpinner :is-loading="isLoading" data-testid="company-screener-spinner"/>
+
     <div class="company-screener__header">
       <div class="flex justify-content-between align-items-center flex-wrap gap-3">
-        <!-- Titlu -->
         <div class="company-screener__title-section">
-          <h1 class="company-screener__title">
-            <span v-if="selectedIndustry" class="company-screener__industry-tag">
-              {{ selectedIndustry }}
-            </span>
-            Companies
-          </h1>
-          <p v-if="companyCount > 0" class="company-screener__subtitle">
-            Showing <strong>{{ filteredCompanies.length }}</strong> of <strong>{{ companyCount }}</strong>
+          <h1 class="company-screener__title">{{ headingLabel }}</h1>
+          <p v-if="totalCount > 0" class="company-screener__subtitle">
+            Showing <strong>{{ filteredCompanies.length }}</strong> of <strong>{{ totalCount }}</strong>
           </p>
         </div>
 
-        <!-- Search Bar -->
         <span class="p-input-icon-left company-screener__search">
-          <i class="pi pi-search" />
+          <i class="pi pi-search"/>
           <InputText
               v-model="searchQuery"
               placeholder="Search by name or ticker..."
@@ -125,58 +112,82 @@ watch(
       </div>
     </div>
 
-    <!-- Grid cu PrimeVue Cards -->
-    <div v-if="!isLoading && filteredCompanies.length > 0" class="company-screener__grid">
-      <Card v-for="company in filteredCompanies" :key="company.symbol" class="company-card-pv">
-        <template #title>
-          <div class="flex justify-content-between align-items-center">
-            <span class="text-xl font-bold">{{ company.name }}</span>
-            <Tag :value="company.symbol" severity="primary" />
-          </div>
-        </template>
+    <DataView
+        v-if="totalCount > 0"
+        :value="filteredCompanies"
+        data-key="symbol"
+        layout="grid"
+        paginator
+        :rows="rows"
+        :first="first"
+        :rows-per-page-options="[12, 24, 48]"
+        @page="onPage"
+    >
+      <template #grid="{ items }">
+        <div class="company-screener__grid">
+          <Card v-for="company in items" :key="company.symbol" class="company-card-pv">
+            <template #title>
+              <div class="flex justify-content-between align-items-center">
+                <span class="text-xl font-bold">{{ company.name }}</span>
+                <Tag :value="company.symbol" severity="primary"/>
+              </div>
+            </template>
 
-        <template #subtitle>
-          <div class="flex align-items-center gap-2 mt-1">
-            <i class="pi pi-tag text-xs"></i>
-            <span>{{ company.industry }}</span>
-          </div>
-        </template>
+            <template #subtitle>
+              <div class="flex align-items-center gap-2 mt-1">
+                <i class="pi pi-tag text-xs"/>
+                <span>{{ company.industry }}</span>
+              </div>
+            </template>
 
-        <template #content>
-          <div class="flex flex-column gap-3 mt-2">
-            <div class="detail-row">
-              <span class="label">Sector</span>
-              <span class="value">{{ company.sector || 'N/A' }}</span>
-            </div>
-            <div class="detail-row" v-if="company.marketCap">
-              <span class="label">Market Cap</span>
-              <span class="value">{{ company.marketCap }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Exchange</span>
-              <Tag :value="company.exchange" severity="info" pt:root:class="text-xs" />
-            </div>
+            <template #content>
+              <div class="flex flex-column gap-3 mt-2">
+                <div class="detail-row">
+                  <span class="label">Sector</span>
+                  <span class="value">{{ company.sector || 'N/A' }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">P/E Ratio</span>
+                  <span class="value">{{ formatPe(company.pricePerEarningsRatio) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Country</span>
+                  <span class="value">{{ company.country || 'N/A' }}</span>
+                </div>
 
-            <p v-if="company.description" class="description-text line-height-3">
-              {{ company.description.substring(0, 150) }}...
-            </p>
-          </div>
-        </template>
+                <p v-if="company.description" class="description-text line-height-3">
+                  {{ company.description.substring(0, 150) }}...
+                </p>
+              </div>
+            </template>
 
-        <template #footer>
-          <div class="flex gap-3 mt-1">
-            <Button label="View Profile" icon="pi pi-external-link" class="flex-auto p-button-outlined" />
-            <Button v-if="company.website" icon="pi pi-globe" rounded text as="a" :href="company.website" target="_blank" />
-          </div>
-        </template>
-      </Card>
-    </div>
+            <template #footer>
+              <div class="flex gap-3 mt-1">
+                <Button
+                    label="View Profile"
+                    icon="pi pi-external-link"
+                    class="flex-auto p-button-outlined"
+                    @click="goToProfile(company)"
+                />
+              </div>
+            </template>
+          </Card>
+        </div>
+      </template>
 
-    <!-- No Search Results -->
-    <div v-if="!isLoading && filteredCompanies.length === 0 && searchQuery" class="text-center p-5">
-      <i class="pi pi-filter-slash text-4xl text-400 mb-3"></i>
-      <p>No companies match your search "{{ searchQuery }}"</p>
-      <Button label="Clear Search" link @click="searchQuery = ''" />
+      <template #empty>
+        <div class="company-screener__state">
+          <i class="pi pi-filter-slash"/>
+          <p v-if="searchQuery">No companies match "{{ searchQuery }}".</p>
+          <p v-else>No companies to display.</p>
+          <Button v-if="searchQuery" label="Clear search" link @click="searchQuery = ''"/>
+        </div>
+      </template>
+    </DataView>
+
+    <div v-else-if="!isLoading" class="company-screener__state">
+      <i class="pi pi-inbox"/>
+      <p>No companies available.</p>
     </div>
   </div>
 </template>
@@ -187,12 +198,31 @@ watch(
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
   align-items: stretch;
+  margin-bottom: 1.5rem;
+}
+
+.company-screener__state {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--text-color-secondary);
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
 }
 
 .company-card-pv {
   display: flex;
   flex-direction: column;
   height: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  }
 
   :deep(.p-card-body) {
     display: flex;
@@ -228,17 +258,4 @@ watch(
   border-top: 1px solid var(--surface-border);
   padding-top: 1rem;
 }
-
-.company-card-pv {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s, box-shadow 0.2s;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-  }
-}
-
 </style>

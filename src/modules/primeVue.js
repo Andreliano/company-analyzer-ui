@@ -35,6 +35,7 @@ import {
     Card,
 } from 'primevue';
 import Chart from 'primevue/chart';
+import DataView from 'primevue/dataview';
 
 /**
  * Injects PrimeVue and its components into the Vue application instance.
@@ -117,6 +118,7 @@ export const injectPrimeVue = (app) => {
     app.component('Chart', Chart);
     app.component('ProgressBar', ProgressBar);
     app.component('Card', Card);
+    app.component('DataView', DataView);
 };
 
 export default injectPrimeVue;

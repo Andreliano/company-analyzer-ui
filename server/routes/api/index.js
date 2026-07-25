@@ -4,6 +4,11 @@ import {getCompaniesIndustries} from "./getCompaniesIndustries.js";
 import {getCompaniesByIndustry} from "./getCompaniesByIndustry.js";
 import {getMarketPERatio} from "./getMarketPERatio.js";
 import {getWeightedPERatioByIndustryAndYear} from "./getWeightedPERatioByIndustryAndYear.js";
+import {generateIncomeStatementSheet} from "./generateIncomeStatementSheet.js";
+import {getIncomeStatementSheet} from "./getIncomeStatementSheet.js";
+import {getBatchJobStatus} from "./getBatchJobStatus.js";
+import {submitBatchJob} from "./submitBatchJob.js";
+import {getShareDataByTicker} from "./getShareDataByTicker.js";
 
 const app = Express.Router();
 
@@ -13,5 +18,10 @@ app.get('/getCompaniesIndustries', getCompaniesIndustries);
 app.get('/getCompaniesByIndustry', getCompaniesByIndustry);
 app.get('/getMarketPERatio', getMarketPERatio);
 app.get('/getWeightedPERatioByIndustryAndYear', getWeightedPERatioByIndustryAndYear);
+app.get('/getIncomeStatementSheet', getIncomeStatementSheet);
+app.post('/generateIncomeStatementSheet', generateIncomeStatementSheet);
+app.post('/submitBatchJob', submitBatchJob);
+app.get('/getBatchJobStatus', getBatchJobStatus);
+app.get('/getShareDataByTicker', getShareDataByTicker);
 
 export default app;
