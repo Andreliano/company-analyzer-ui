@@ -7,12 +7,12 @@ import {
   watch,
 } from 'vue';
 import {useBatchStore} from '../store/batchStore.js';
-import {useGetCompaniesStockSymbols} from '../store/getCompaniesStockSymbols.js';
+import {useCompaniesWithIncomeStatements} from '../store/companiesWithIncomeStatementsStore.js';
 import SheetPreviewTable from './SheetPreviewTable.vue';
 import LoadingSpinner from './LoadingSpinner.vue';
 
 const store = useBatchStore();
-const symbolsStore = useGetCompaniesStockSymbols();
+const symbolsStore = useCompaniesWithIncomeStatements();
 
 const selectedTickers = ref([]);
 const currentYear = new Date().getFullYear();
@@ -59,7 +59,7 @@ const displayDuration = computed(() => {
 
 const tickerOptions = computed(() => {
   const seen = new Set();
-  return (symbolsStore.getCompaniesStockSymbolsResults ?? [])
+  return (symbolsStore.getCompanies ?? [])
       .filter((c) => {
         if (!c?.symbol || seen.has(c.symbol)) return false;
         seen.add(c.symbol);
@@ -105,8 +105,8 @@ watch(
 );
 
 onMounted(() => {
-  if (!symbolsStore.getCompaniesStockSymbolsResults?.length) {
-    symbolsStore.fetchAllCompaniesStockSymbols();
+  if (!symbolsStore.getCompanies?.length) {
+    symbolsStore.fetchCompaniesWithIncomeStatements();
   }
 });
 
@@ -128,6 +128,7 @@ onUnmounted(() => {
             option-label="symbol"
             option-value="symbol"
             data-key="symbol"
+            show-clear
             :filter="true"
             :filter-fields="['symbol', 'description']"
             filter-placeholder="Search by ticker or name…"
@@ -135,7 +136,7 @@ onUnmounted(() => {
             :max-selected-labels="4"
             selected-items-label="{0} companies selected"
             :show-toggle-all="false"
-            :loading="symbolsStore.getCompaniesStockSymbolsResultsLoading"
+            :loading="symbolsStore.getLoading"
             placeholder="Select companies"
             class="batch__multiselect"
             panel-class="ticker-panel"
@@ -272,23 +273,22 @@ onUnmounted(() => {
 
   &__status {
     font-weight: 600;
+  }
 
-    &__meta {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-    }
+  &__meta {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
 
-    &__timer {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.375rem;
-      font-variant-numeric: tabular-nums;
-    }
+  &__timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-variant-numeric: tabular-nums;
   }
 }
 
-/* Top-level — ca să prindă panoul teleportat în body */
 .batch__multiselect {
   width: 340px;
   max-width: 100%;
@@ -318,7 +318,7 @@ onUnmounted(() => {
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1 1 auto;
-    min-width: 0; // esențial ca ellipsis să meargă în flex
+    min-width: 0;
   }
 }
 </style>

@@ -9,6 +9,7 @@ import {getIncomeStatementSheet} from "./getIncomeStatementSheet.js";
 import {getBatchJobStatus} from "./getBatchJobStatus.js";
 import {submitBatchJob} from "./submitBatchJob.js";
 import {getShareDataByTicker} from "./getShareDataByTicker.js";
+import {getCompaniesWithIncomeStatements} from "./getCompaniesWithIncomeStatements.js";
 
 const app = Express.Router();
 
@@ -23,5 +24,6 @@ app.post('/generateIncomeStatementSheet', generateIncomeStatementSheet);
 app.post('/submitBatchJob', submitBatchJob);
 app.get('/getBatchJobStatus', getBatchJobStatus);
 app.get('/getShareDataByTicker', getShareDataByTicker);
+app.get('/getCompaniesWithIncomeStatements', getCompaniesWithIncomeStatements);
 
 export default app;

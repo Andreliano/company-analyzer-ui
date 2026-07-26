@@ -1,12 +1,12 @@
 <script setup>
 import {ref, computed, onMounted, onUnmounted} from 'vue';
 import {useSheetStudioStore} from '../store/sheetStudioStore.js';
-import {useGetCompaniesStockSymbols} from '../store/getCompaniesStockSymbols.js';
+import {useCompaniesWithIncomeStatements} from '../store/companiesWithIncomeStatementsStore.js';
 import LoadingSpinner from './LoadingSpinner.vue';
 import SheetPreviewTable from './SheetPreviewTable.vue';
 
 const store = useSheetStudioStore();
-const symbolsStore = useGetCompaniesStockSymbols();
+const symbolsStore = useCompaniesWithIncomeStatements();
 
 const ticker = ref(null);
 const generatedTicker = ref('');
@@ -19,7 +19,7 @@ const isLoading = computed(() => store.generating || store.loadingGrid);
 
 const tickerOptions = computed(() => {
   const seen = new Set();
-  return (symbolsStore.getCompaniesStockSymbolsResults ?? [])
+  return (symbolsStore.getCompanies ?? [])
       .filter((c) => {
         if (!c?.symbol || seen.has(c.symbol)) return false;
         seen.add(c.symbol);
@@ -44,8 +44,8 @@ const onGenerate = () => {
 };
 
 onMounted(() => {
-  if (!symbolsStore.getCompaniesStockSymbolsResults?.length) {
-    symbolsStore.fetchAllCompaniesStockSymbols();
+  if (!symbolsStore.getCompanies?.length) {
+    symbolsStore.fetchCompaniesWithIncomeStatements();
   }
 });
 
@@ -71,7 +71,7 @@ onUnmounted(() => {
             :filter-fields="['symbol', 'description']"
             filter-placeholder="Search by ticker or name…"
             :virtual-scroller-options="{ itemSize: 44 }"
-            :loading="symbolsStore.getCompaniesStockSymbolsResultsLoading"
+            :loading="symbolsStore.getLoading"
             placeholder="Select a company"
             reset-filter-on-hide
             show-clear
