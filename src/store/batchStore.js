@@ -16,6 +16,10 @@ export const useBatchStore = defineStore('batchStore', {
         pollErrors: 0,
         error: null,
 
+        sequentialRunning: false,
+        sequentialResults: null,
+        sequentialDurationMs: null,
+
         previewTicker: null,
         previewGrid: [],
         previewLoading: false,
@@ -39,6 +43,16 @@ export const useBatchStore = defineStore('batchStore', {
             return s.job.totalTasks > 0 && s.job.completedTasks >= s.job.totalTasks;
         },
 
+        sequentialResultRows: (s) => {
+            const results = s.sequentialResults ?? {};
+            return Object.entries(results).map(([ticker, sheetId]) => ({
+                ticker,
+                sheetId,
+                state: sheetId === 'FAILED' ? 'failed' : 'ready',
+                success: sheetId !== 'FAILED',
+            }));
+        },
+
         resultRows: (s) => {
             const results = s.job?.results ?? {};
             const tickers = s.job?.tickers?.length ? s.job.tickers : Object.keys(results);
@@ -57,6 +71,23 @@ export const useBatchStore = defineStore('batchStore', {
     },
 
     actions: {
+        async submitSequential({ tickers, fromYear, toYear }) {
+            this.sequentialRunning = true;
+            this.sequentialResults = null;
+            this.sequentialDurationMs = null;
+            const startedAt = Date.now();
+            try {
+                const response = await axios.post(`${getApiUrl()}/submitSequentialBatch`, {
+                    tickers, fromYear, toYear,
+                });
+                this.sequentialResults = response?.data ?? {};
+                this.sequentialDurationMs = Date.now() - startedAt;
+            } catch (error) {
+                this.$handleError(error, 'Sequential run failed', 'The sequential run failed.');
+            } finally {
+                this.sequentialRunning = false;
+            }
+        },
         async submitBatch({ tickers, fromYear, toYear }) {
             this.submitting = true;
             this.error = null;

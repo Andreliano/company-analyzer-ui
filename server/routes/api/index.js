@@ -8,6 +8,7 @@ import {generateIncomeStatementSheet} from "./generateIncomeStatementSheet.js";
 import {getIncomeStatementSheet} from "./getIncomeStatementSheet.js";
 import {getBatchJobStatus} from "./getBatchJobStatus.js";
 import {submitBatchJob} from "./submitBatchJob.js";
+import {submitSequentialBatch} from "./submitSequentialBatch.js";
 import {getShareDataByTicker} from "./getShareDataByTicker.js";
 import {getCompaniesWithIncomeStatements} from "./getCompaniesWithIncomeStatements.js";
 
@@ -22,6 +23,7 @@ app.get('/getWeightedPERatioByIndustryAndYear', getWeightedPERatioByIndustryAndY
 app.get('/getIncomeStatementSheet', getIncomeStatementSheet);
 app.post('/generateIncomeStatementSheet', generateIncomeStatementSheet);
 app.post('/submitBatchJob', submitBatchJob);
+app.post('/submitSequentialBatch', submitSequentialBatch);
 app.get('/getBatchJobStatus', getBatchJobStatus);
 app.get('/getShareDataByTicker', getShareDataByTicker);
 app.get('/getCompaniesWithIncomeStatements', getCompaniesWithIncomeStatements);

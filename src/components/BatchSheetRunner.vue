@@ -76,6 +76,14 @@ const canSubmit = computed(
         !store.polling,
 );
 
+const onSubmitSequential = () => {
+  store.submitSequential({
+    tickers: selectedTickers.value,
+    fromYear: fromYear.value,
+    toYear: toYear.value,
+  });
+};
+
 const onSubmit = () => {
   store.submitBatch({
     tickers: selectedTickers.value,
@@ -160,6 +168,14 @@ onUnmounted(() => {
         <InputNumber v-model="toYear" :use-grouping="false" :min="2014" :max="currentYear"/>
       </div>
       <Button
+          label="Run Sequential"
+          icon="pi pi-list"
+          severity="secondary"
+          :disabled="!canSubmit || store.sequentialRunning"
+          :loading="store.sequentialRunning"
+          @click="onSubmitSequential"
+      />
+      <Button
           label="Run Batch"
           icon="pi pi-play"
           :disabled="!canSubmit"
@@ -207,6 +223,45 @@ onUnmounted(() => {
           </template>
         </Column>
       </DataTable>
+    </div>
+
+    <div v-if="store.sequentialDurationMs || store.sequentialRunning" class="batch__seq-result">
+      <div v-if="store.sequentialRunning" class="batch__seq-running">
+        <i class="pi pi-spin pi-spinner"/> Running sequentially… (no live progress)
+      </div>
+      <template v-else>
+        <div class="batch__seq-summary">
+          Sequential run:
+          <strong>{{ formatDuration(store.sequentialDurationMs) }}</strong>
+          for {{ store.sequentialResultRows.length }} companies
+          <span v-if="store.sequentialResultRows.filter(r => !r.success).length">
+            · {{ store.sequentialResultRows.filter(r => !r.success).length }} failed
+          </span>
+        </div>
+
+        <DataTable :value="store.sequentialResultRows" data-key="ticker" size="small" show-gridlines>
+          <Column field="ticker" header="Ticker" style="min-width: 120px;"/>
+          <Column header="Status" style="min-width: 120px;">
+            <template #body="{ data }">
+              <Tag
+                  :value="{ ready: 'Ready', failed: 'Failed' }[data.state]"
+                  :severity="{ ready: 'success', failed: 'danger' }[data.state]"
+              />
+            </template>
+          </Column>
+          <Column header="Action" style="min-width: 140px;">
+            <template #body="{ data }">
+              <Button
+                  label="Preview"
+                  icon="pi pi-eye"
+                  text
+                  :disabled="!data.success"
+                  @click="onPreview({ ticker: data.ticker, sheetId: data.sheetId, success: data.success })"
+              />
+            </template>
+          </Column>
+        </DataTable>
+      </template>
     </div>
 
     <Dialog

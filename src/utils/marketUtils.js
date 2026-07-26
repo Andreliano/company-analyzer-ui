@@ -23,7 +23,6 @@ export const fetchLastNYearsWithData = async (fetchYearFn, targetCount = 5, maxL
                 results.unshift({ year, avgPERatio: ratio });
             }
         } catch {
-            // Year unavailable — skip and continue
         }
     }
 

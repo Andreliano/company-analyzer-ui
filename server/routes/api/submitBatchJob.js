@@ -5,8 +5,6 @@ export const submitBatchJob = async (req, res) => {
         data: req.body,
     };
 
-    console.log(opts);
-
     try {
         const results = (await res.locals.serviceRequest(opts))?.data;
         return res.status(200).json(results);
