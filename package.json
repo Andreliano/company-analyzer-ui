@@ -7,6 +7,7 @@
     "dev": "yarn watch",
     "watch": "npm-run-all -p watch:build watch:start",
     "watch:build": "vite",
+    "build": "vite build",
     "watch:start": "node --watch-path ./server/ --watch-path ./.env -r dotenv/config server/app.js",
     "start": "node --optimize_for_size server/app.js",
     "lint": "eslint",

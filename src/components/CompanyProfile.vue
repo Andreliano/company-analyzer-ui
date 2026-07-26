@@ -46,6 +46,9 @@ const loadList = async () => {
   if (allCompanies.value.length) return; // deja în cache din screener/overview
   listLoading.value = true;
   try {
+    if (!marketDataStore.getIndustriesData?.length) {
+        await marketDataStore.fetchIndustries();
+    }
     await marketDataStore.fetchCompaniesByIndustry();
   } finally {
     listLoading.value = false;

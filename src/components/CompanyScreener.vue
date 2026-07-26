@@ -43,6 +43,10 @@ const loadCompanies = async () => {
   isLoading.value = true;
   first.value = 0;
   try {
+    if (!industryFromQuery.value && !marketDataStore.getIndustriesData?.length) {
+      await marketDataStore.fetchIndustries();
+    }
+
     await marketDataStore.fetchCompaniesByIndustry(industryFromQuery.value);
     const all = marketDataStore.getCompaniesByIndustry ?? [];
 

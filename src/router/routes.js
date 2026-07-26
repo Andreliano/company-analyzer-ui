@@ -26,13 +26,13 @@ export default [
         component: () => import('../containers/CompanyResearchContainer.vue'),
         children: [
             {
-                path: 'company-profile',
+                path: `/${subdirectory}/company-profile`,
                 name: 'companyProfileView',
                 component: () => import('../views/CompanyProfileView.vue'),
                 meta: { heading: 'Company Profile' },
             },
             {
-                path: 'company-screener',
+                path: `/${subdirectory}/company-screener`,
                 name: 'companyScreenerView',
                 component: () => import('../views/CompanyScreenerView.vue'),
                 meta: { heading: 'Company Screener' },
@@ -44,13 +44,13 @@ export default [
         component: () => import('../containers/SheetStudioContainer.vue'),
         children: [
             {
-                path: 'single-sheet-generator',
+                path: `/${subdirectory}/single-sheet-generator`,
                 name: 'singleSheetGeneratorView',
                 component: () => import('../views/SingleSheetGeneratorView.vue'),
                 meta: { heading: 'Single Sheet Generator' },
             },
             {
-                path: 'batch',
+                path: `/${subdirectory}/batch`,
                 name: 'batchSheetRunnerView',
                 component: () => import('../views/BatchSheetRunnerView.vue'),
                 meta: { heading: 'Batch Sheet Runner' },

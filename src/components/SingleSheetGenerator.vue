@@ -12,7 +12,7 @@ const ticker = ref(null);
 const generatedTicker = ref('');
 const currentYear = new Date().getFullYear();
 const fromYear = ref(currentYear - 5);
-const toYear = ref(currentYear);
+const toYear = ref(currentYear - 1);
 const previewVisible = ref(false);
 
 const isLoading = computed(() => store.generating || store.loadingGrid);
