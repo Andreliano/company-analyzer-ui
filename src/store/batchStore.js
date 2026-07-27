@@ -4,7 +4,7 @@ import { useFlashMessagesStore } from './flashMessagesStore.js';
 import { defineStore } from 'pinia';
 
 const POLL_INTERVAL_MS = 2000;
-const MAX_POLL_ERRORS = 3;
+const MAX_POLL_ERRORS = 5;
 const MAX_POLL_MS = 20 * 60 * 1000;
 
 export const useBatchStore = defineStore('batchStore', {
